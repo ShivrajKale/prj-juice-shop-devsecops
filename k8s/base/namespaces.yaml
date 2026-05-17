@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+  labels: { environment: dev, project: juice-shop }
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: prod
+  labels: { environment: prod, project: juice-shop }
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: security-tools
