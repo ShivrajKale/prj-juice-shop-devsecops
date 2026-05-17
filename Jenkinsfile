@@ -54,9 +54,9 @@ pipeline {
                         withSonarQubeEnv('sonarqube-server') {
                             sh """
                                 ${tool 'sonar-scanner'}/bin/sonar-scanner \
-                                  -Dsonar.projectKey=${SONAR_PROJECT} \
+                                  -Dsonar.projectKey=juice-shop \
                                   -Dsonar.sources=. \
-                                  -Dsonar.token=${SONAR_AUTH_TOKEN} \
+                                  -Dsonar.token=\$SONAR_AUTH_TOKEN \
                                   -Dsonar.host.url=http://localhost:9000
                             """
                         }
