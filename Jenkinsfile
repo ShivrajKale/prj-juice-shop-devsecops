@@ -51,18 +51,17 @@ pipeline {
 
                 stage('2. SAST - SonarQube') {
                     steps {
-                        withSonarQubeEnv('sonarqube-server') {
-                            sh """
-                                ${tool 'sonar-scanner'}/bin/sonar-scanner \
-                                  -Dsonar.projectKey=juice-shop \
-                                  -Dsonar.sources=. \
-                                  -Dsonar.token=\$SONAR_AUTH_TOKEN \
-                                  -Dsonar.host.url=http://localhost:9000
-                            """
-                        }
-                        // Wait for quality gate result
-                        timeout(time: 5, unit: 'MINUTES') {
-                            waitForQualityGate abortPipeline: true
+                        withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+                            script {
+                                def scannerHome = tool 'sonar-scanner'
+                                sh """
+                                    ${scannerHome}/bin/sonar-scanner \
+                                      -Dsonar.projectKey=juice-shop \
+                                      -Dsonar.sources=. \
+                                      -Dsonar.login=\${SONAR_TOKEN} \
+                                      -Dsonar.host.url=http://localhost:9000
+                                """
+                            }
                         }
                     }
                 }
