@@ -95,6 +95,8 @@ pipeline {
         stage('4. Docker Build') {
             steps {
                 sh """
+                    git clone https://github.com/juice-shop/juice-shop.git juice-shop-src
+                    cd juice-shop-src
                     docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
                     docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
                 """
