@@ -70,6 +70,7 @@ pipeline {
                 stage('3. Dependency Check') {
                     steps {
                         sh """
+                            mkdir -p dependency-check-report
                             dependency-check \
                               --scan . \
                               --format HTML \
