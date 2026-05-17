@@ -1,0 +1,17 @@
+replicaCount: 1
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 256Mi
+  limits:
+    cpu: 400m
+    memory: 512Mi
+
+autoscaling:
+  enabled: false    # No autoscaling in dev to save money
+
+ingress:
+  annotations:
+    alb.ingress.kubernetes.io/group.name: juice-shop-dev
+    alb.ingress.kubernetes.io/tags: Environment=dev
