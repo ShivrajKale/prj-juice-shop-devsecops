@@ -1,0 +1,32 @@
+prometheus:
+  prometheusSpec:
+    retention: 7d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+
+grafana:
+  adminPassword: "<PASSWORD>"    # Change this!
+  service:
+    type: ClusterIP
+  ingress:
+    enabled: false    # We'll port-forward for now
+
+alertmanager:
+  config:
+    route:
+      receiver: 'slack'
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+    receivers:
+      - name: 'slack'
+        slack_configs:
+          - api_url: '<YOUR_SLACK_WEBHOOK_URL>'
+            channel: '#alerts'
+            title: '{{ .GroupLabels.alertname }}'
+            text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
