@@ -63,6 +63,7 @@ pipeline {
                                     ${scannerHome}/bin/sonar-scanner \
                                       -Dsonar.projectKey=juice-shop \
                                       -Dsonar.sources=juice-shop-src \
+                                      -Dsonar.scm.disabled=true \
                                       -Dsonar.login=${token} \
                                       -Dsonar.host.url=http://localhost:9000
                                 """
