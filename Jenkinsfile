@@ -42,7 +42,11 @@ pipeline {
                 }
             }
         }
-
+        stage('Clone App Source') {
+            steps {
+                sh 'git clone https://github.com/juice-shop/juice-shop.git juice-shop-src'
+            }
+        }
         // ========================================
         // STAGE 2 + 3: SAST + DEPENDENCY CHECK (PARALLEL)
         // ========================================
@@ -58,7 +62,8 @@ pipeline {
                                 sh """
                                     ${scannerHome}/bin/sonar-scanner \
                                       -Dsonar.projectKey=juice-shop \
-                                      -Dsonar.sources=. \
+                                      -Dsonar.sources=juice-shop-src \
+                                      -Dsonar.scm.disabled=true \
                                       -Dsonar.login=${token} \
                                       -Dsonar.host.url=http://localhost:9000
                                 """
@@ -72,7 +77,7 @@ pipeline {
                         sh """
                             mkdir -p dependency-check-report
                             dependency-check \
-                              --scan . \
+                              --scan juice-shop-src \
                               --format HTML \
                               --format JSON \
                               --out dependency-check-report/ \
@@ -95,7 +100,6 @@ pipeline {
         stage('4. Docker Build') {
             steps {
                 sh """
-                    git clone https://github.com/juice-shop/juice-shop.git juice-shop-src
                     cd juice-shop-src
                     docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
                     docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
