@@ -268,43 +268,4 @@ terraform/
     └── screenshots/
 ```
 
----
 
-## Lessons learned
-
-**SonarQube SCM exclusion** — SonarQube skipped all 1,174 files in the cloned Juice Shop source because it treated them as untracked by git. The fix was adding `-Dsonar.scm.disabled=true` to the scanner command. This is a common gotcha when scanning code that lives outside the main repo.
-
-**EBS CSI driver chicken-and-egg** — Installing the EBS CSI driver addon without an IRSA role causes the controller pods to crash-loop (no IMDS access on EKS managed nodes with hop limit 1). The addon gets stuck in CREATING state and can't be updated. The fix: delete the addon and recreate it with `--service-account-role-arn` in the same command.
-
-**Loki chart breaking changes** — The Loki Helm chart (v7.0.0) requires explicit `deploymentMode: SingleBinary` and zeroed-out scalable-mode replicas, plus `schemaConfig` — none of which were needed in earlier versions. The default memcached caches also caused OOM scheduling failures on smaller node groups and had to be disabled.
-
----
-
-## Cost estimate
-
-| Resource | Spec | Estimated monthly cost |
-|----------|------|----------------------|
-| EKS control plane | 1 cluster | ~$73 |
-| EC2 (EKS nodes) | 2x t3.large | ~$120 |
-| EC2 (Jenkins) | 1x t3.large | ~$60 |
-| NAT Gateway | 1 | ~$32 |
-| ALB | 2 (dev + prod) | ~$32 |
-| EBS volumes | ~30 GiB | ~$3 |
-| ECR | Storage | ~$1 |
-| S3 (Terraform state) | Minimal | <$1 |
-| **Total** | | **~$322/month** |
-
-> **Tip**: Tear down the cluster when not in use. `terraform destroy` and rebuild when needed — that's the point of IaC.
-
----
-
-## Production improvements
-
-If this were a real production deployment, I would add:
-
-- **Real domain + ACM certificate** — Replace the self-signed cert with a proper domain and AWS Certificate Manager for trusted HTTPS
-- **External Secrets Operator** — Store Slack webhooks, SonarQube tokens, and DB credentials in AWS Secrets Manager instead of Jenkins credentials
-- **Terraform for monitoring stack** — Manage Helm releases for Prometheus/Loki through Terraform instead of manual helm install commands
-- **IRSA for ALB controller** — Currently using direct AWS credentials as a workaround; proper IRSA would be more secure
-- **Pod Security Standards** — Enforce restricted pod security at the namespace level
-- **Backup and disaster recovery** — Velero for cluster backup, cross-region ECR replication
